@@ -1,0 +1,33 @@
+<app-titulo></app-titulo>
+
+<label for="nombre">Nombre: </label>
+<input [(ngModel)]="nombre" type="text" name="nombre" placeholder="Ingresa tu nombre">
+
+<label for="correo">Correo: </label>
+<input [(ngModel)]="correo" type="text" name="correo" placeholder="Ingresa tu correo">
+
+<label for="telefono">Teléfono: </label>
+<input [(ngModel)]="telefono" type="text" name="telefono" placeholder="Ingresa tu teléfono">
+
+<button (click)="adicionar()">Agregar</button>
+
+<app-boton></app-boton>
+
+<h2>Lista de contactos</h2>
+
+<div>
+    <table border="1">
+        <tr>
+            <th>No.</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+        </tr>
+        <tr *ngFor="let contacto of contactos; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ contacto.nombre }}</td>
+            <td>{{ contacto.correo }}</td>
+            <td>{{ contacto.telefono }}</td>
+        </tr>
+    </table>
+</div>
