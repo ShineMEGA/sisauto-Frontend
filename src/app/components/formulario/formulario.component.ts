@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Contacto } from 'src/app/modelo/contacto.model';
+import { Contacto } from 'src/app/models/contacto.model';
 
 @Component({
   selector: 'app-formulario',

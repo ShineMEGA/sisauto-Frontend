@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  appName:'SISAUTO',
+  rutaBackend: 'https://localhost:7199/api'
+
 };
 
 /*
