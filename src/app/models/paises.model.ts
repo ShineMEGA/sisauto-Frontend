@@ -1,5 +1,5 @@
 export class Paises{
-    paisId: number;
+    PaisID: number;
     nombre: string;
     
 }

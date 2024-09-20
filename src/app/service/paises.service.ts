@@ -17,4 +17,8 @@ export class PaisesService {
     return this._httpClient.get<Paises[]>(this.ruta);
 
   }
+
+  guardaPaises(pais:Paises): Observable<any> {
+    return this._httpClient.post<void>(this.ruta, pais);
+  }
 }

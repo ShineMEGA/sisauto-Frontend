@@ -1,5 +1,5 @@
-export class Cliente {
-    ClienteID: number;
+export class Clientes {
+    clienteID: number;
     Nombre: string;
     Apellido: string;
     Direccion: string;

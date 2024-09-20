@@ -1,30 +1,138 @@
+
+
+<!-- CRUD -->
+<p-toast></p-toast>
 <div class="grid">
-	<div class="col-12">
-		<div class="card">
-			<h3>{{titulo}}</h3>
-			<div class="p-fluid p-formgrid grid">
-				<div class="field col-12 md:col-6">
-					<label htmlFor="firstname2">Nombre</label>
-					<input pInputText id="nombre" type="text" />
-				</div>
-				<div class="field col-12 md:col-6">
-					<label htmlFor="apellido">Apellido</label>
-					<input pInputText id="apellido" type="text" />
-				</div>
-				<div class="field col-12">
-					<label htmlFor="direccion">Direccion</label>
-					<input pInputTextarea id="direccion" rows="4" />
-				</div>
-				<div class="field col-12 md:col-6">
-					<label htmlFor="telefono">Telefono</label>
-					<input pInputText id="telefono" type="text" />
-				</div>
-				<div class="field col-12 md:col-3">
-					<label htmlFor="pais">Pais</label>
-					<p-dropdown [options]="paises" optionLabel="nombre"></p-dropdown>
-				</div>
-			</div>
-			<button pButton label="Guardar"></button>
-		</div>
-	</div>
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <!-- <p-toast></p-toast> -->
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Nuevo Cliente" icon="pi pi-plus" class="p-button-success mr-2" (click)="abrirDialog()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="clientes" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h3 class="m-0">Administrar Clientes</h3>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="clienteID">ID <p-sortIcon field="clienteID"></p-sortIcon></th>
+                        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+                        <th pSortableColumn="apellido">Apellido <p-sortIcon field="apellido"></p-sortIcon></th>
+                        <th pSortableColumn="direccion">Direccion <p-sortIcon field="direccion"></p-sortIcon></th>
+                        <th pSortableColumn="telefono">Telefono<p-sortIcon field="telefono"></p-sortIcon></th>
+                        <th pSortableColumn="paisID">Pais<p-sortIcon field="paisID"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-cliente>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="cliente"></p-tableCheckbox>
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Code</span>
+                            {{cliente.clienteID}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Nombre</span>
+                            {{cliente.nombre}}
+                        </td>
+                        <td style="width:14%; min-width:8rem;">
+                            <span class="p-column-title">Apellido</span>
+                            {{cliente.apellido}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Direccion</span>
+                            {{cliente.direccion}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Telefono</span>
+                            {{cliente.telefono}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Pais</span>
+                            {{cliente.paisID}}
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editCliente(cliente)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteCliente(cliente)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
 </div>
+
+
+<!-- Modal Formulario para añadir nuevo cliente-->
+<p-dialog [(visible)]="clientesDialog" [style]="{width: '450px'}" header={{titulo}} [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label  htmlFor="nombre">Nombre</label>
+                <input [(ngModel)]="cliente.nombre" pInputText id="nombre" type="text" />
+            </div>
+            <div class="field col-12 md:col-6">
+                <label htmlFor="apellido">Apellido</label>
+                <input  [(ngModel)]="cliente.apellido" pInputText id="apellido" type="text" />
+            </div>
+            <div class="field col-12">
+                <label htmlFor="direccion">Direccion</label>
+                <input  [(ngModel)]="cliente.direccion"  pInputTextarea id="direccion" rows="4" />
+            </div>
+            <div class="field col-12 md:col-6">
+                <label htmlFor="telefono">Telefono</label>
+                <input [(ngModel)]="cliente.telefono" pInputText id="telefono" type="text" />
+            </div>
+            <div class="field col-12 md:col-3">
+                <label htmlFor="pais">Pais</label>
+                <p-dropdown 
+                [(ngModel)]="cliente.paisID" 
+                [options]="paises" 
+                optionLabel="nombre"
+                optionValue="paisID">
+                </p-dropdown>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="enviarDatos()"></button>
+    </ng-template>
+</p-dialog>
+
+
+<!-- Modal eliminar cliente-->
+<p-dialog [(visible)]="eliminarClienteDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="this.cliente">Estas seguro que quieres borrar <b>{{this.cliente.nombre + ' ' + this.cliente.apellido }}</b>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="eliminarClienteDialog = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+    </ng-template>
+</p-dialog>
