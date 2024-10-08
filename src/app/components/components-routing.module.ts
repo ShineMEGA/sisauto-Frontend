@@ -6,8 +6,9 @@ import { RouterModule } from '@angular/router';
 
 @NgModule({
   imports: [ RouterModule.forChild([
-     {path: 'formulario', loadChildren: () => import('./formulario/formulario.module').then(m=>m.FormularioModule) },
      {path: 'clientes', loadChildren: () => import('./clientes/clientes.module').then(m=>m.ClientesModule) },
+     {path: 'servicios', loadChildren: () => import('./servicios/servicios.module').then(m=>m.ServiciosModule) },
+     {path: 'ordenes', loadChildren: () => import('./ordenes/ordenes.module').then(m=>m.OrdenesModule) },
   ])
     
   ]

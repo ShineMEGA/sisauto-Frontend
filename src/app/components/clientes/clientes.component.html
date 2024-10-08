@@ -70,7 +70,7 @@
                         </td>
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">Pais</span>
-                            {{cliente.paisID}}
+                            {{cliente.pais.nombre}}
                         </td>
                         <td>
                             <div class="flex">
@@ -98,15 +98,7 @@
                 <label htmlFor="apellido">Apellido</label>
                 <input  [(ngModel)]="cliente.apellido" pInputText id="apellido" type="text" />
             </div>
-            <div class="field col-12">
-                <label htmlFor="direccion">Direccion</label>
-                <input  [(ngModel)]="cliente.direccion"  pInputTextarea id="direccion" rows="4" />
-            </div>
             <div class="field col-12 md:col-6">
-                <label htmlFor="telefono">Telefono</label>
-                <input [(ngModel)]="cliente.telefono" pInputText id="telefono" type="text" />
-            </div>
-            <div class="field col-12 md:col-3">
                 <label htmlFor="pais">Pais</label>
                 <p-dropdown 
                 [(ngModel)]="cliente.paisID" 
@@ -114,6 +106,14 @@
                 optionLabel="nombre"
                 optionValue="paisID">
                 </p-dropdown>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label htmlFor="telefono">Telefono</label>
+                <input [(ngModel)]="cliente.telefono" pInputText id="telefono" type="text" />
+            </div>
+            <div class="field col-12">
+                <label htmlFor="direccion">Direccion</label>
+                <input  [(ngModel)]="cliente.direccion"  pInputTextarea id="direccion" rows="4" />
             </div>
         </div>
     </ng-template>

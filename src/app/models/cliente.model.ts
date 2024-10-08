@@ -1,6 +1,6 @@
 export class Clientes {
     clienteID: number;
-    Nombre: string;
+    nombre: string;
     Apellido: string;
     Direccion: string;
     Telefono: string;

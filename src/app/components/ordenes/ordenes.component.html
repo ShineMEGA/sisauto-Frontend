@@ -1,0 +1,215 @@
+<!-- CRUD -->
+<p-toast></p-toast>
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <!-- <p-toast></p-toast> -->
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Nueva Orden" icon="pi pi-plus" class="p-button-success mr-2"
+                            (click)="abrirDialog()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger"
+                            (click)="deleteSelectedProducts()"
+                            [disabled]="!selectedProducts || !selectedProducts.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import"
+                        chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+                        (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="ordenes" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true"
+                [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" selectionMode="multiple"
+                [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h3 class="m-0">Administrar Ordenes</h3>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="ordenID">ID <p-sortIcon field="ordenID"></p-sortIcon></th>
+                        <th pSortableColumn="cliente">Cliente <p-sortIcon field="cliente"></p-sortIcon></th>
+                        <th pSortableColumn="fecha">Fecha <p-sortIcon field="fecha"></p-sortIcon></th>
+                        <th pSortableColumn="total">Total <p-sortIcon field="total"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-orden>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="orden"></p-tableCheckbox>
+                        </td>
+                        <td style="width:5%; min-width:10rem;"><span class="p-column-title">Code</span>
+                            {{orden.ordenID}}
+                        </td>
+                        <td style="width:30%; min-width:10rem;">
+                            <span class="p-column-title">Nombre</span>
+                            {{orden.cliente.nombre +' '+ orden.cliente.apellido}}
+                        </td>
+                        <td style="width:14%; min-width:8rem;">
+                            <span class="p-column-title">Fecha</span>
+                            {{orden.fecha}}
+                        </td>
+                        <td style="width:30%; min-width:10rem;">
+                            <span class="p-column-title">Total</span>
+                            {{orden.total}}
+                        </td>
+                        <td style="width:20%; min-width:10rem;">
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2" (click)="editOrden(orden)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                    (click)="deleteOrden(orden)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Formulario para añadir nuevo orden -->
+<p-dialog [(visible)]="ordenesDialog" [style]="{width: '900px'}" header="{{titulo}}" [modal]="true" class="p-fluid">
+    <!-- Panel dividido -->
+    <div class="grid">
+        <!-- Primera columna (formulario) -->
+        <div class="col-5 flex align-items-center justify-content-center">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12">
+                    <label htmlFor="cliente">Seleccione un cliente</label>
+                    <p-autoComplete 
+                    [(ngModel)]="selectedCliente"
+                    [suggestions]="clientesFiltrados"
+                    (completeMethod)="searchClientes($event)" 
+                    field="nombre" 
+                    [dropdown]="true" 
+                    required="true" 
+                    
+                    (ngModelChange)="validarFormulario()"
+                    placeholder="Buscar cliente" />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label htmlFor="servicio">Seleccione un servicio</label>
+                    <p-autoComplete 
+                    [(ngModel)]="selectedServicio"
+                        placeholder="Buscar Servicio" 
+                        [suggestions]="serviciosFiltrados" 
+                        (completeMethod)="searchServicios($event)"
+                        field="nombreServicio" 
+                        [dropdown]="true" 
+                        required="true" 
+                        
+                        (ngModelChange)="validarFormulario()"
+                        #costoServicio />
+                </div>
+
+                <div class="field col-6">
+                    <label htmlFor="cantidad">Cantidad</label>
+                    <input [(ngModel)]="cantidad"
+                    pInputTextarea id="cantidad" rows="1" type="number" 
+                        required="true" #cantidadInput
+                        (ngModelChange)="validarFormulario()"
+                        (change)="calcularCantidad(cantidadInput.value, costoServicio.value.costo)" />
+                </div>
+
+                <div class="field col-6">
+                    <label htmlFor="subtotal">Subtotal</label>
+                    <input [(ngModel)]="subtotal" 
+                    (ngModelChange)="validarFormulario()"
+                    pInputTextarea id="subtotal" rows="1" disabled="true" />
+                </div>
+
+                <div class="field col-12 text-right">
+                    <button pButton pRipple label="Añadir" icon="pi pi-plus" class="p-button-success" [disabled]="!isFormValid"
+                        (click)="anadirDetalle()">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divisor -->
+        <div class="col-1 flex align-items-center justify-content-center">
+            <p-divider layout="vertical"></p-divider>
+        </div>
+
+        <!-- Segunda columna (lista de servicios) -->
+        <div class="col-6">
+            <h5>Listado de Servicios</h5>
+
+            <div class="field text-right" style="margin-bottom: 10px;">
+                <label htmlFor="total" style="margin-right: 10px;">Total:</label>
+                <input [(ngModel)]="total" pInputTextarea id="total" rows="1" disabled="true" style="width: 100px;" />
+            </div>
+
+            <p-table [value]="detalleOrdenes" responsiveLayout="scroll" [scrollable]="true" scrollHeight="400px">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Operaciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-detalleOrdenes let-rowIndex="rowIndex">
+                    <tr>
+                        <td>{{ detalleOrdenes.nombreServicio }}</td>
+                        <td>{{ detalleOrdenes.cantidad }}</td>
+                        <td>{{ detalleOrdenes.subtotal }}</td>
+                        <td>
+                            <div class="flex justify-content-center">
+                                <button pButton pRipple icon="pi pi-trash" 
+                                    class="p-button-rounded p-button-warning" 
+                                    (click)="eliminarDetalle(rowIndex)">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+            <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="enviarDatos()"></button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+
+
+
+
+<!-- Modal eliminar orden-->
+<p-dialog [(visible)]="eliminarOrdenDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="this.orden">Estas seguro que quieres borrar <b>{{this.orden.nombre + ' ' + this.orden.apellido
+                }}</b>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+            (click)="eliminarOrdenDialog = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+    </ng-template>
+</p-dialog>

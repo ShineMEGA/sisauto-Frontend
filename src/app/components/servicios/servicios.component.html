@@ -1,0 +1,117 @@
+
+
+<!-- CRUD -->
+<p-toast></p-toast>
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <!-- <p-toast></p-toast> -->
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Nuevo Servicio" icon="pi pi-plus" class="p-button-success mr-2" (click)="abrirDialog()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="servicios" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h3 class="m-0">Administrar Servicio</h3>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="servicioID">ID <p-sortIcon field="servicioID"></p-sortIcon></th>
+                        <th pSortableColumn="nombreServicio">Nombre Servicio <p-sortIcon field="nombreServicio"></p-sortIcon></th>
+                        <th pSortableColumn="descripcion">Descripcion<p-sortIcon field="descripcion"></p-sortIcon></th>
+                        <th pSortableColumn="costo">Costo <p-sortIcon field="costo"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-servicio>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="servicio"></p-tableCheckbox>
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Code</span>
+                            {{servicio.servicioID}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Nombre servicio</span>
+                            {{servicio.nombreServicio}}
+                        </td>
+                        <td style="width:14%; min-width:8rem;">
+                            <span class="p-column-title">Descripción</span>
+                            {{servicio.descripcion}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Costo</span>
+                            {{servicio.costo}}
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editServicio(servicio)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteServicio(servicio)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Formulario para añadir nuevo servicio-->
+<p-dialog [(visible)]="serviciosDialog" [style]="{width: '550px'}" header={{titulo}} [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label  htmlFor="nombreServicio">Nombre Servicio</label>
+                <input [(ngModel)]="servicio.nombreServicio" pInputText id="nombreServicio" type="text" />
+            </div>
+            <div class="field col-12 md:col-8">
+                <label htmlFor="descripcion">Descripcion</label>
+                <input  [(ngModel)]="servicio.descripcion" pInputTextarea id="descripcion" rows="1" type="text" />
+            </div>
+            <div class="field col-4">
+                <label htmlFor="costo">Costo</label>
+                <p-inputNumber mode="decimal" inputId="costo"  [(ngModel)]="servicio.costo" class="ng-invalid ng-dirty" [minFractionDigits]="2" [MaxFractionDigits]="5">
+
+                </p-inputNumber>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="enviarDatos()"></button>
+    </ng-template>
+</p-dialog>
+
+
+<!-- Modal eliminar servicio-->
+<p-dialog [(visible)]="eliminarServicioDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+    <div class="flex align-items-center justify-content-center">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span *ngIf="this.servicio">Estas seguro que quieres borrar <b>{{this.servicio.nombreServicio}}</b>?</span>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="eliminarServicioDialog = false"></button>
+        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+    </ng-template>
+</p-dialog>

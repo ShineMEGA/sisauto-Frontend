@@ -63,6 +63,7 @@ export class ClientesComponent implements OnInit {
     //Editar
     if (this.cliente.clienteID) { 
       this._clientesService.actualizaCliente(this.cliente).subscribe( dato => {
+        dato.pais = this.findPaisById(dato.paisID)
         this.cliente = dato;
         this.clientes[this.findIndexById(this.cliente.clienteID)] = this.cliente;
         this._messageService.add({ severity: 'success', summary: 'Correcto', detail: 'Cliente Actualizado', life: 3000 });
@@ -90,6 +91,18 @@ export class ClientesComponent implements OnInit {
     }
 
     return index;
+}
+
+findPaisById(id: number): any {
+  let index = -1;
+  for (let i = 0; i < this.paises.length; i++) {
+      if (this.paises[i].paisID === id) {
+          index = i;
+          break;
+      }
+  }
+
+  return this.paises[index];
 }
 
   cleanObjectCli() {
